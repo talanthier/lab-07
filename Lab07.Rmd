@@ -15,6 +15,7 @@ library(tidyverse)
 library(broom)
 library(pROC)
 library(plotROC)
+library(knitr)
 ```
 
 In this lab we will be investigating Spotify song attribute data from 2017 from a single user. The raw dataset can be found on the Github Repository.
@@ -31,6 +32,33 @@ We will be creating a model to predict whether or not the user likes a song or n
 
 ```{r}
 spotify <- spotify %>%
-  mutate(target = as.factor(target))
+  mutate(target = as.factor(target), 
+         key = ifelse(key == 2, 'D', ifelse(key == 3, 'D#', 'Other')))
 ```
+
+```{r}
+ggplot(data = spotify, aes(x = target)) +
+  geom_bar() +
+  labs(x = 'Target', title = 'Distribution of Target')
+
+ggplot(data = spotify, aes(x = key)) +
+  geom_bar() +
+  labs(x = 'Key', title = 'Distribution of Key')
+
+ggplot(data = spotify, aes(x = key, fill = target)) +
+  geom_bar(position = 'fill') +
+  labs(x = 'Key', y = 'Proportion', title = 'Key vs Target')
+```
+According to the above plot, it looks like the user appears to dislike songs in D# shown by a approximately 30\% of the songs in D# being liked by the user. Meanwhile the user likes approximately 60\% of the songs in D and around 50% of the songs in other keys. Now we will build a logistic regression model to predict `target` using `acousticness`, `danceability`, `duration_ms`, `instrumentalness`, `loudness`, `speechiness`, and `valence` as our predictors.
+
+```{r}
+model <- glm(target ~ acousticness + danceability + duration_ms + instrumentalness + loudness + speechiness + valence,  
+             data = spotify, 
+             family = 'binomial')
+tidy(model, conf.int=TRUE) %>%
+  kable(digits = 3)
+```
+
+
+
 
