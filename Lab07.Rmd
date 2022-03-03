@@ -56,9 +56,28 @@ model <- glm(target ~ acousticness + danceability + duration_ms + instrumentalne
              data = spotify, 
              family = 'binomial')
 tidy(model, conf.int=TRUE) %>%
-  kable(digits = 3)
+  kable(digits = 6, format = 'markdown')
+```
+Now we will consider adding `key` to our model. Consider the model `model_key` shown below which is our original model but including `key` as an additional predictor.
+
+```{r}
+model_key <- glm(target ~ key + acousticness + danceability + duration_ms + instrumentalness + loudness + speechiness + valence,  
+             data = spotify, 
+             family = 'binomial')
+```
+We will now conduct a drop-in-deviance test between `model` and `model_key` to check whether we should include `key` in our final model. Note that in `model_key`, we have an additional 2 terms: `keyD#` and `keyOther`. So if we let $\beta_1$ and $\beta_2$ be the coefficients for `keyD#` and `keyOther` in our model including `key`, then we have the null hypothesis that $\beta_1 = \beta_2 = 0$ and the alternate hypothesis that at least one of $\beta_1$ and $\beta_2$ is nonzero. Now we may conduct a drop-in-deviance test.
+
+```{r}
+dev_model <- glance(model)$deviance
+dev_model_key <- glance(model_key)$deviance
+test_stat <- dev_model - dev_model_key
 ```
 
+Now as we noted earlier, we have an additional 2 parameters in `model_key` compared to the original model. So we will be checking the probability that $\chi^2$ is greater than our test statistic where $\chi^2$ follows a $chi^2$-distribution with 2 degrees of freedom.
 
+```{r}
+1-pchisq(test_stat,2)
+```
 
+The p-value from our drop-in-deviance test is shown. So at the 0.01 significance level, since our p-value is less than 0.01, we have sufficient evidence to reject the null hypothesis that $\beta_1 = \beta_2 = 0$. So we are confident that at least one of $\beta_1$ and $\beta_2$ is nonzero which would suggest that we should include `key` in our model.
 
