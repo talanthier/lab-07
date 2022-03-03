@@ -1,5 +1,5 @@
 ---
-title: "lab-07"
+title: "STAT 108: Lab 7"
 author: "Tim Lanthier"
 date: "3/2/2022"
 output: html_document
@@ -9,22 +9,28 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+# Lab 7: Logistic Regression
+```{r message = FALSE}
+library(tidyverse)
+library(broom)
+library(pROC)
+library(plotROC)
 ```
 
-## Including Plots
+In this lab we will be investigating Spotify song attribute data from 2017 from a single user. The raw dataset can be found on the Github Repository.
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+spotify <- read.csv('data/spotify.csv')
+glimpse(spotify)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## Data Prep & Modeling
+
+We will be creating a model to predict whether or not the user likes a song or not. Here, the response variable is `target` where 1 means the user liked the song, 0 means they did not like the song. Note that in the glimpse above, `target` is an integer value which we need to change to a factor. We also will need to change `key` to a factor.
+
+```{r}
+spotify <- spotify %>%
+  mutate(target = as.factor(target))
+```
+
