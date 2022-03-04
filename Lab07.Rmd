@@ -79,5 +79,14 @@ Now as we noted earlier, we have an additional 2 parameters in `model_key` compa
 1-pchisq(test_stat,2)
 ```
 
-The p-value from our drop-in-deviance test is shown. So at the 0.01 significance level, since our p-value is less than 0.01, we have sufficient evidence to reject the null hypothesis that $\beta_1 = \beta_2 = 0$. So we are confident that at least one of $\beta_1$ and $\beta_2$ is nonzero which would suggest that we should include `key` in our model.
+The p-value from our drop-in-deviance test is shown. So at the 0.01 significance level, since our p-value is less than 0.01, we have sufficient evidence to reject the null hypothesis that $\beta_1 = \beta_2 = 0$. So we are confident that at least one of $\beta_1$ and $\beta_2$ is nonzero. This means that `key` will have some predictive power in our model. Thus we should include `key` in our model. So for the remainder of the lab, we will be using `model_key` shown below.
+
+```{r}
+tidy(model_key, conf.int = TRUE) %>%
+  kable(digits = 3)
+```
+
+According to the model output, looking at the coefficient for `keyD#`, a song will have a log odds of being liked by the user that is $e^{-1.073} = 0.342$ times the log odds of a song with the same characteristics with the only difference that it is in the D key.
+
+## Checking Assumptions
 
