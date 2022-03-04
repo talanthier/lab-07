@@ -90,3 +90,33 @@ According to the model output, looking at the coefficient for `keyD#`, a song wi
 
 ## Checking Assumptions
 
+We will now check the assumptions for our model. We will start by checking the binned residuals and the predicted probabilities for our model.
+
+```{r}
+spotify_aug <- augment(model_key, type.predict = 'response')
+
+arm::binnedplot(x = spotify_aug$.fitted, y = spotify_aug$.resid,
+                xlab = "Predicted Probabilities", 
+                main = "Binned Residual vs. Predicted Values", 
+                col.int = FALSE)
+```
+We will also examine the binned residual plots for `loudness`.
+```{r}
+arm::binnedplot(x = spotify_aug$loudness, y = spotify_aug$.resid,
+                xlab = "Loudness", 
+                main = "Binned Residual vs. Loudness", 
+                col.int = FALSE)
+```
+Now consider the residuals in each category of `key`.
+
+```{r}
+spotify_aug %>%
+  group_by(key) %>%
+  summarise(mean_resid = mean(.resid))
+```
+
+Now that we have the above plots and table, we can see that the linearity assumption is not satisfied. Starting with the binned residual plot of Binned residuals versus predicted probabilities, we see a clear slightly V-shaped pattern. Looking at the binned residual plot for `loudness`, we also see a clear pattern. Songs with either low or high loudness on average have residuals below zero. Since we do not have a random scatter in our binned residual plots, we conclude that the linearity assumption is not satisfied. That being said, the mean residuals across the groups for `key` are pretty close to one another (all within 0.1 of 0).
+
+## Model Assessment and Prediction
+
+
