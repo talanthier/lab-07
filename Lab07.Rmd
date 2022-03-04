@@ -119,4 +119,13 @@ Now that we have the above plots and table, we can see that the linearity assump
 
 ## Model Assessment and Prediction
 
+```{r}
+(roc_curve <- ggplot(spotify_aug, aes(d = as.numeric(target) - 1,m = .fitted)) +
+  geom_roc(n.cuts = 5, labelround = 3) + 
+  geom_abline(intercept = 0) + 
+  labs(x = 'False Positive Rate', y = 'True Positive rate'))
+
+calc_auc(roc_curve)$AUC
+```
+So we have an AUC of 0.714.
 
