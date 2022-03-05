@@ -1,8 +1,10 @@
 ---
-title: "STAT 108: Lab 7"
+title: 'STAT 108: Lab 7'
 author: "Tim Lanthier"
 date: "3/2/2022"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -10,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Lab 7: Logistic Regression
+
+Github: https://github.com/talanthier/lab-07
 ```{r message = FALSE}
 library(tidyverse)
 library(broom)
@@ -121,11 +125,34 @@ Now that we have the above plots and table, we can see that the linearity assump
 
 ```{r}
 (roc_curve <- ggplot(spotify_aug, aes(d = as.numeric(target) - 1,m = .fitted)) +
-  geom_roc(n.cuts = 5, labelround = 3) + 
+  geom_roc(n.cuts = 10, labelround = 3) + 
   geom_abline(intercept = 0) + 
   labs(x = 'False Positive Rate', y = 'True Positive rate'))
 
 calc_auc(roc_curve)$AUC
 ```
-So we have an AUC of 0.714.
+So we have an AUC of 0.714. Since an AUC of close to 1 would indicate a very good fit and an AUC close to 0.5 would indicate a poor fit, I would say that our model does just an okay job of differentiating between the songs the user likes and doesn't like. Looking at are ROC curve, it does not get particularly close to the ideal case where we have a True Positive rate very close to 1 and false positive rate very close to 0.
+
+In this case, we are predicting whether the user likes or dislikes a song. In the context of this problem, a false positive means we classified a song which the user dislikes as a song we think he would like. A false negative would be when we classify a song that the user actually likes as a song that he should dislike. So in the context of this problem, neither are particularly dangerous. So we should choose a threshold value on the ROC curve closest fo the top left corner (high true positive rate, low false positive rate). Looking at our ROC curve, our optimal threshold might be between 0.58 and 0.521. So we might choose a threshold of 0.55.
+
+For the rest of the lab we will use this threshold value of 0.55.
+
+```{r}
+threshold <- 0.55
+
+spotify_aug %>%
+  mutate(target_pred = if_else(.fitted > threshold, "1: Liked", "0: Disliked")) %>%
+  group_by(target, target_pred) %>%
+  summarise(n = n()) %>%
+  kable(format="markdown")
+```
+The confusion matrix for our model with this threshold value is shown above. Hence we have a specificity of
+\[\text{specificity} = \frac{581}{439 + 581} = 0.5696\]
+and sensitivity of
+\[\text{sensitivity} = \frac{784}{784+213} = 0.7864\]
+Hence we get a false positive rate of 
+\[1 - \text{sensitivity} = 0.2136\]
+
+In total, we misclassified $213 + 581 = 794$ songs out of a total of $784 +213 + 439 + 581 = 2017$ songs. So we have a misclassification rate of
+$\frac{794}{2017} = 0.394$.
 
